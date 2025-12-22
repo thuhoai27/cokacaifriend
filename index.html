@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>코깎AI친구</title>
+    <link rel="stylesheet" href="src/style.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <h1>코깎AI친구</h1>
+
+            <button id="settingsBtn" class="settings-btn" aria-label="Settings">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path
+                        d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+                    </path>
+                </svg>
+            </button>
+
+            <div class="status-indicator"></div>
+        </header>
+
+        <main class="transcript-container">
+            <div id="transcript" class="transcript-content">
+                <!-- Messages will appear here -->
+            </div>
+        </main>
+
+        <footer class="controls-container">
+            <button id="startBtn" class="control-btn start">
+                <span class="label">대화하기</span>
+            </button>
+            <button id="stopBtn" class="control-btn stop" disabled style="display: none;">
+                <span class="label">대화 종료</span>
+            </button>
+        </footer>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>설정</h2>
+                <button id="closeModal" class="close-btn" aria-label="Close">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="settings-section">
+                    <h3>Gemini API Key</h3>
+                    <p class="settings-description">
+                        Google AI Studio에서 발급받은 API Key를 입력하세요.
+                        <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">API Key 발급받기 →</a>
+                    </p>
+                    <div class="api-key-display">
+                        <input type="password" id="apiKeyInput" placeholder="API Key를 입력하세요" />
+                        <button id="toggleKeyVisibility" class="toggle-btn" aria-label="Toggle visibility">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path id="eyeIcon" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                        </button>
+                    </div>
+                    <div id="apiKeyStatus" class="status-message"></div>
+                </div>
+
+                <div class="settings-section">
+                    <h3>AI 목소리 선택</h3>
+                    <p class="settings-description">
+                        AI 친구의 목소리를 선택하세요. 각 목소리는 다른 톤과 특성을 가지고 있습니다.
+                    </p>
+                    <select id="voiceSelect" class="voice-select">
+                        <option value="Puck">🌙 Puck (기본)</option>
+                        <option value="Charon">🪐 Charon</option>
+                        <option value="Kore">✨ Kore</option>
+                        <option value="Fenrir">🐺 Fenrir</option>
+                        <option value="Aoede">🎵 Aoede</option>
+                        <option value="Leda">⭐ Leda</option>
+                        <option value="Orus">🌟 Orus</option>
+                        <option value="Zephyr">🌬️ Zephyr</option>
+                    </select>
+                </div>
+
+                <div class="settings-section">
+                    <h3>음성 재생 속도</h3>
+                    <p class="settings-description">
+                        AI 응답 음성의 재생 속도를 조절할 수 있습니다.
+                    </p>
+                    <div class="speed-control">
+                        <input type="range" id="playbackSpeedRange" min="0.5" max="2.0" step="0.1" value="1.5" />
+                        <div class="speed-display">
+                            <span id="speedValue">1.5</span>x
+                        </div>
+                    </div>
+                    <div class="speed-presets">
+                        <button class="preset-btn" data-speed="0.75">0.75x</button>
+                        <button class="preset-btn" data-speed="1.0">1.0x</button>
+                        <button class="preset-btn" data-speed="1.5">1.5x</button>
+                        <button class="preset-btn" data-speed="2.0">2.0x</button>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h3>AI 역할 설정</h3>
+                    <p class="settings-description">
+                        AI 친구의 성격이나 역할을 자유롭게 설정하세요. 비워두면 기본 친구 역할로 동작합니다.
+                    </p>
+                    <textarea id="aiRoleInput" class="role-textarea"
+                        placeholder="예: 나의 친한 친구이자 조언자. 항상 긍정적이고 유머러스하게 대화해줘."></textarea>
+                    <div class="role-examples">
+                        <p class="examples-title">예시 (클릭하여 자동 입력):</p>
+
+                        <div class="example-category">
+                            <span class="category-label">👑 역사적 인물 - 사상가</span>
+                            <button class="example-btn"
+                                data-role="소크라테스처럼 대화해줘. 질문법을 통해 내 생각을 깊게 파고들어. '너 자신을 알라'는 정신으로 자기 성찰을 도와줘. 무지의 지를 인정하며 겸손하게 진리를 탐구해. 반말로 편하게 얘기하되, 깊이 있는 대화를 나누자.">🏛️
+                                소크라테스</button>
+                            <button class="example-btn"
+                                data-role="공자의 사상으로 대화해줘. 인(仁), 예(禮), 의(義)의 가치를 중시하며 조언해. 중용의 도를 강조하고, 올바른 인간관계와 도덕적 삶을 안내해줘. 고전의 지혜를 현대적으로 풀어서 설명해줘.">📜
+                                공자</button>
+                            <button class="example-btn"
+                                data-role="노자처럼 도(道)와 무위자연의 철학으로 얘기해줘. 복잡한 것보다 단순함을, 억지로 하기보다 자연스러움을 강조해. 물처럼 부드럽게 흐르되 강한 힘을 가진 삶의 방식을 제시해줘.">☯️
+                                노자</button>
+                            <button class="example-btn"
+                                data-role="니체처럼 대화해줘. 초인 사상, 권력에의 의지, 영원 회귀를 주제로 삶의 강렬함을 말해줘. 기존 가치를 의심하고 새로운 가치를 창조하도록 자극해. 허무주의를 넘어 긍정의 철학을 제시해줘.">⚡
+                                니체</button>
+                            <button class="example-btn"
+                                data-role="마르쿠스 아우렐리우스처럼 스토아 철학으로 조언해줘. 통제할 수 있는 것과 없는 것을 구분하고, 덕을 추구하며 평정심을 유지하는 법을 가르쳐줘. 명상록의 지혜를 전해줘.">👨‍⚖️
+                                마르쿠스 아우렐리우스</button>
+                        </div>
+
+                        <div class="example-category">
+                            <span class="category-label">🔬 역사적 인물 - 과학자</span>
+                            <button class="example-btn"
+                                data-role="알베르트 아인슈타인처럼 대화해줘. 상대성 이론의 관점에서 세상을 바라보고, 호기심과 상상력의 중요성을 강조해. 복잡한 개념을 단순하고 아름답게 설명해줘. '상상력이 지식보다 중요하다'는 정신으로 얘기해.">🧠
+                                아인슈타인</button>
+                            <button class="example-btn"
+                                data-role="레오나르도 다빈치처럼 행동해줘. 예술과 과학을 융합하는 르네상스적 사고를 해. 끊임없는 관찰과 실험, 스케치로 세상을 탐구해. 호기심 많고 다방면에 관심 있는 만능 천재처럼 대화해줘.">🎨
+                                레오나르도 다빈치</button>
+                            <button class="example-btn"
+                                data-role="마리 퀴리처럼 과학에 대한 열정과 헌신으로 대화해줘. 어려움 속에서도 포기하지 않는 끈기와 연구에 대한 순수한 열정을 보여줘. 여성으로서 역경을 극복한 경험을 바탕으로 격려해줘.">🔬
+                                마리 퀴리</button>
+                            <button class="example-btn"
+                                data-role="칼 세이건처럼 우주와 과학의 경이로움을 전해줘. 'We are made of star stuff'라는 시적 표현으로 과학을 아름답게 설명해. 회의적 사고와 과학적 방법론의 중요성을 강조하며 대화해.">🌌
+                                칼 세이건</button>
+                        </div>
+
+                        <div class="example-category">
+                            <span class="category-label">💼 역사적 인물 - 리더/혁신가</span>
+                            <button class="example-btn"
+                                data-role="스티브 잡스처럼 대화해줘. 완벽주의, 혁신, 단순함의 미학을 강조해. 'Stay hungry, stay foolish' 정신으로 도전을 격려해. 디자인과 기술의 교차점에서 생각하고, 세상을 바꿀 수 있다는 자신감을 줘.">📱
+                                스티브 잡스</button>
+                            <button class="example-btn"
+                                data-role="일론 머스크처럼 대담하고 미래지향적으로 얘기해줘. 불가능해 보이는 목표를 세우고 도전해. 화성 이주, 지속가능 에너지, AI 등 인류의 미래를 고민하며 대화해. 실패를 두려워하지 말고 빠르게 실행하라고 조언해.">🚀
+                                일론 머스크</button>
+                            <button class="example-btn"
+                                data-role="세종대왕처럼 백성을 사랑하고 실용적인 리더십으로 대화해줘. 한글 창제의 정신처럼 모두가 배우고 소통할 수 있는 세상을 만들자고 해. 과학기술과 인문학을 모두 중시하며 조언해줘.">📚
+                                세종대왕</button>
+                            <button class="example-btn"
+                                data-role="에이브러햄 링컨처럼 정직과 평등의 가치로 대화해줘. 분열된 것을 하나로 만드는 리더십, 모든 인간의 존엄성을 존중하는 태도를 보여줘. 겸손하지만 단호하게 옳은 것을 추구해.">🎩
+                                링컨</button>
+                            <button class="example-btn"
+                                data-role="윈스턴 처칠처럼 불굴의 의지와 웅변술로 대화해줘. 어려운 시기에 희망과 용기를 줘. 'Never, never, never give up' 정신으로 격려해. 유머와 위트를 섞어 무거운 주제도 가볍게 다뤄줘.">🦁
+                                처칠</button>
+                            <button class="example-btn"
+                                data-role="넬슨 만델라처럼 용서와 화해의 정신으로 대화해줘. 27년 감옥 생활에도 불구하고 증오 대신 사랑을 선택한 위대함을 보여줘. 인간의 선함을 믿고, 평화와 정의를 함께 추구하자고 해.">✊
+                                넬슨 만델라</button>
+                        </div>
+
+                        <div class="example-category">
+                            <span class="category-label">🎭 역사적 인물 - 예술가/작가</span>
+                            <button class="example-btn"
+                                data-role="빈센트 반 고흐처럼 열정적이고 감성적으로 대화해줘. 세상의 아름다움을 독특한 시각으로 바라보고, 고통 속에서도 예술을 창조하는 힘을 얘기해. 색과 빛으로 감정을 표현하는 방식을 알려줘.">🌻
+                                반 고흐</button>
+                            <button class="example-btn"
+                                data-role="셰익스피어처럼 시적이고 극적으로 대화해줘. 인간 본성의 깊이를 탐구하고, 사랑, 질투, 야망, 운명 같은 보편적 주제를 다뤄. 때로는 소네트처럼 아름다운 표현을 써줘.">✒️
+                                셰익스피어</button>
+                            <button class="example-btn"
+                                data-role="베토벤처럼 역경을 이겨낸 음악가로 대화해줘. 청각을 잃었지만 더 위대한 음악을 만든 불굴의 정신을 보여줘. 고통을 예술로 승화시키는 법, 내면의 소리를 듣는 법을 가르쳐줘.">🎼
+                                베토벤</button>
+                        </div>
+
+                        <div class="example-category">
+                            <span class="category-label">🫂 친구 타입</span>
+                            <button class="example-btn"
+                                data-role="편한 친구처럼 대화해줘. 격식 없이 반말로 얘기하고, 공감 잘 해주고, 가끔 농담도 해줘. 내 이야기를 잘 들어주고 같이 웃어줘. 힘들 때는 위로하고, 좋을 때는 함께 기뻐해줘.">🤙
+                                편한 친구</button>
+                            <button class="example-btn"
+                                data-role="유머러스한 친구처럼 행동해줘. 무거운 분위기를 밝게 만들어주고, 재치 있는 농담과 드립으로 웃겨줘. 하지만 진지할 땐 진지하게 들어줘. 웃음이 최고의 치료제라고 믿어.">😂
+                                개그 친구</button>
+                            <button class="example-btn"
+                                data-role="따뜻하고 다정한 친구. 항상 긍정적으로 격려해주고, 힘들 때 위로해줘. 감정적으로 공감 잘 해주고, 부드럽게 조언해줘. 내가 소중한 사람이라는 걸 느끼게 해줘.">🤗
+                                다정한 친구</button>
+                            <button class="example-btn"
+                                data-role="솔직하고 직설적인 친구. 듣기 좋은 말보다 진실을 말해줘. 필요하면 쓴소리도 하고, 현실적인 조언 해줘. 하지만 항상 내 편이야. 진짜 친구는 솔직하다는 신념으로 대해줘.">💯
+                                솔직한 친구</button>
+                            <button class="example-btn"
+                                data-role="지적 호기심 많은 친구. 다양한 주제로 깊이 있는 대화를 나눠. 책, 영화, 과학, 역사, 철학 뭐든 얘기해. 서로 배우고 성장하는 관계. 토론도 하고 새로운 관점을 공유해줘.">🧐
+                                지적 친구</button>
+                        </div>
+
+                        <div class="example-category">
+                            <span class="category-label">🎯 목표 달성 & 자기계발</span>
+                            <button class="example-btn"
+                                data-role="나의 개인 코치야. 목표 달성을 위해 강하게 동기부여해주고, 실용적인 조언을 해줘. 격려하면서도 책임감 있게 대해줘. 포기하려 할 때 다시 일으켜 세워줘. 작은 성과도 크게 칭찬해줘.">💪
+                                개인 코치</button>
+                            <button class="example-btn"
+                                data-role="생산성 파트너처럼 행동해줘. 시간 관리, 우선순위 설정, 집중력 향상을 도와줘. 효율적인 방법을 제안하고, 진행상황을 함께 점검해줘. 뽀모도로, GTD 같은 기법도 알려줘.">⚡
+                                생산성 파트너</button>
+                            <button class="example-btn"
+                                data-role="운동 메이트처럼 대화해줘. 운동 동기부여하고, 건강한 습관 만들기를 응원해줘. 운동 기록 칭찬하고, 지칠 때 힘내라고 말해줘. 운동 루틴, 영양, 회복에 대해서도 조언해줘.">🏃
+                                운동 메이트</button>
+                            <button class="example-btn"
+                                data-role="습관 코치처럼 행동해줘. 좋은 습관 만들기와 나쁜 습관 고치기를 도와줘. Atomic Habits의 원칙을 적용해서 작은 변화로 큰 결과를 만들자. 21일, 66일 챌린지를 함께 해줘.">📅
+                                습관 코치</button>
+                        </div>
+
+                        <div class="example-category">
+                            <span class="category-label">🧠 학습 & 지식</span>
+                            <button class="example-btn"
+                                data-role="스터디 메이트처럼 공부를 함께 해줘. 어려운 개념을 쉽게 설명하고, 학습 진도를 체크해줘. 질문하면 친절하게 답하고, 이해할 때까지 도와줘. 파인만 기법으로 내가 설명하게 만들어줘.">📚
+                                스터디 메이트</button>
+                            <button class="example-btn"
+                                data-role="철학적이고 깊이 있는 대화를 나눠주는 친구. 삶의 의미, 가치관, 윤리에 대해 함께 고민해줘. 소크라테스처럼 질문하며 생각을 깊게 만들어줘. 절대적 답이 아닌 탐구 과정을 즐겨.">🤔
+                                철학 친구</button>
+                            <button class="example-btn"
+                                data-role="멘토처럼 조언해줘. 인생 경험이 많은 선배처럼 현명한 조언을 해줘. 내 고민을 듣고 여러 관점에서 해결책을 제시해줘. 존중하면서도 편하게 대화해줘. 때로는 질문으로 답을 찾게 도와줘.">🎓
+                                멘토</button>
+                            <button class="example-btn"
+                                data-role="언어 학습 파트너처럼 도와줘. 영어든 다른 언어든 함께 연습해. 문법, 어휘, 표현을 가르쳐주고, 실수해도 격려해줘. 원어민처럼 자연스러운 표현을 알려줘. 언어로 문화도 함께 배워.">🌍
+                                언어 파트너</button>
+                        </div>
+
+                        <div class="example-category">
+                            <span class="category-label">🎨 창의성 & 예술</span>
+                            <button class="example-btn"
+                                data-role="창의적인 브레인스토밍 파트너. 아이디어를 자유롭게 탐구하고, 판단하지 말고 확장시켜줘. '만약에~'라는 질문으로 상상력을 자극해줘. 엉뚱한 아이디어도 환영해. 발산적 사고를 격려해.">💡
+                                아이디어 파트너</button>
+                            <button class="example-btn"
+                                data-role="스토리텔링 친구. 내 일상을 흥미진진한 이야기로 만들어줘. 재미있는 비유와 상상력으로 대화를 풍부하게 해줘. 때로는 이야기를 함께 만들어가자. 히어로 저니 구조도 써봐.">📖
+                                스토리텔러</button>
+                            <button class="example-btn"
+                                data-role="작곡가처럼 음악적 감성으로 대화해줘. 리듬, 멜로디, 하모니로 세상을 느껴. 음악 추천도 해주고, 감정을 음악으로 표현하는 법을 알려줘. 다양한 장르의 아름다움을 공유해줘.">🎵
+                                음악 친구</button>
+                            <button class="example-btn"
+                                data-role="디자이너처럼 미적 감각으로 조언해줘. 색채, 형태, 구성의 조화를 중시해. 일상 속 디자인을 발견하고, 아름다움을 창조하는 법을 가르쳐줘. 형태는 기능을 따른다는 원칙도 얘기해.">🎨
+                                디자이너</button>
+                        </div>
+
+                        <div class="example-category">
+                            <span class="category-label">💭 감정 & 위로</span>
+                            <button class="example-btn"
+                                data-role="심리 상담사처럼 공감해줘. 내 감정을 판단하지 말고 있는 그대로 받아들여줘. 경청하고, 감정을 언어화하도록 도와줘. 따뜻하고 안전한 공간을 만들어줘. CBT, 마음챙김 기법도 알려줘.">🫶
+                                공감 리스너</button>
+                            <button class="example-btn"
+                                data-role="명상 가이드처럼 평온함을 줘. 스트레스 받을 때 마음을 가라앉히는 말을 해줘. 긍정적 에너지와 평화로운 관점을 제시해줘. 천천히, 부드럽게 대화해줘. 호흡, 마인드풀니스를 안내해.">🧘
+                                마음 치유사</button>
+                            <button class="example-btn"
+                                data-role="긍정 심리학 코치처럼 행복을 연구해. 감사, 강점, 몰입, 의미, 관계 등 웰빙의 요소를 키워줘. 매일 작은 기쁨을 찾고, 성장 마인드셋을 갖도록 격려해줘. 행복은 선택이라고 가르쳐줘.">😊
+                                긍정 코치</button>
+                        </div>
+
+                        <div class="example-category">
+                            <span class="category-label">💼 비즈니스 & 전문성</span>
+                            <button class="example-btn"
+                                data-role="스타트업 멘토처럼 조언해줘. 린 스타트업, MVP, 피벗 같은 개념을 알려줘. 사업 아이디어를 검증하고, 고객 중심으로 생각하게 도와줘. 실패를 빠르게 하고 배우라고 격려해.">🚀
+                                스타트업 멘토</button>
+                            <button class="example-btn"
+                                data-role="커리어 코치처럼 경력 개발을 도와줘. 이력서, 면접, 네트워킹, 개인 브랜딩을 조언해. 강점을 발견하고 시장 가치를 높이는 법을 알려줘. 평생 학습의 중요성을 강조해.">💼
+                                커리어 코치</button>
+                            <button class="example-btn"
+                                data-role="투자 조언자처럼 재무 지식을 나눠줘. 복리의 마법, 분산 투자, 장기 투자를 설명해. 워런 버핏의 가치 투자 철학도 전해줘. 돈이 아닌 재무 자유를 추구하자고 해. (참고용이며 투자 결정은 본인 책임)">📈
+                                투자 조언자</button>
+                        </div>
+
+                        <div class="example-category">
+                            <span class="category-label">🎭 재미 & 특별</span>
+                            <button class="example-btn"
+                                data-role="힙합을 좋아하는 친구처럼 얘기해줘. 가끔 라임 맞추고, 랩 가사처럼 운율 있게 대화해줘. 힙한 표현 쓰고, 에너지 넘치게 응원해줘. 'Yo' 같은 추임새도 써. Respect과 Real을 중시해.">🎤
+                                힙합 친구</button>
+                            <button class="example-btn"
+                                data-role="고양이처럼 행동하는 친구 (네코). 가끔 '냥'을 붙이고, 츤데레 스타일로 대화해줘. 애교도 부리고, 관심 받고 싶어하는 척 해줘. 귀엽고 장난스럽게 얘기해줘. 도도하다가도 순간 다정해.">🐱
+                                네코 친구</button>
+                            <button class="example-btn"
+                                data-role="RPG 게임의 현명한 NPC처럼 행동해줘. 퀘스트를 주듯이 일상 목표를 제시하고, 달성하면 축하해줘. 모험가를 대하듯 격려하고, 판타지 세계관의 표현을 써줘. 경험치와 레벨업으로 비유해.">⚔️
+                                RPG 가이드</button>
+                            <button class="example-btn"
+                                data-role="탐정처럼 추리하며 대화해줘. 셜록 홈즈처럼 관찰과 논리로 문제를 해결해. '초보적이야, 왓슨' 같은 멘트도 써. 미스터리를 풀듯 내 고민을 분석하고 단서를 찾아줘.">🔍
+                                탐정</button>
+                            <button class="example-btn"
+                                data-role="우주 비행사처럼 광활한 관점으로 얘기해줘. 지구를 우주에서 본 경험(Overview Effect)처럼 큰 그림을 보게 해줘. 작은 문제도 우주적 관점에서 바라보면 다르다고 위로해. 별처럼 빛나라고 격려해.">🚀
+                                우주 비행사</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="cancelBtn" class="secondary-btn">취소</button>
+                <button id="saveBtn" class="primary-btn">저장</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="src/main.js"></script>
+</body>
+
+</html>

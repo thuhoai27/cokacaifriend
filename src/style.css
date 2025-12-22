@@ -1,0 +1,797 @@
+:root {
+    --primary-color: #8ab4f8;
+    /* Light Blue for Dark Mode */
+    --primary-dark: #8ab4f8;
+    --danger-color: #e57373;
+    /* Light Red */
+    --bg-color: #202124;
+    /* Dark Gray Background */
+    --surface-color: #292a2d;
+    /* Slightly lighter gray surface */
+    --text-primary: #e8eaed;
+    /* Light Gray Text */
+    --text-secondary: #9aa0a6;
+    --user-bubble-bg: #303134;
+    --model-bubble-bg: #3c4043;
+    --border-color: #3f4042;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    font-family: 'Google Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    line-height: 1.5;
+    height: 100vh;
+    overflow: hidden;
+    /* Prevent body scroll, handle in main */
+}
+
+.app-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    background-color: var(--bg-color);
+    position: relative;
+    border-left: 1px solid var(--border-color);
+    border-right: 1px solid var(--border-color);
+}
+
+.app-header {
+    padding: 1rem;
+    background-color: var(--surface-color);
+    border-bottom: 1px solid var(--border-color);
+    text-align: center;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: background-color 0.3s;
+}
+
+.app-header h1 {
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.cost-info {
+    font-size: 0.75rem;
+    /* Small text */
+    opacity: 0.7;
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    font-family: monospace;
+    text-align: right;
+}
+
+.tutor-comment {
+    font-size: 0.8rem;
+    color: #ffd54f;
+    /* Amber color for "learning/highlight" feel in dark mode */
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    background-color: rgba(255, 213, 79, 0.1);
+    border-radius: 0.5rem;
+    border-left: 3px solid #ffd54f;
+    font-style: italic;
+    text-align: left;
+}
+
+.tutor-comment p {
+    margin: 0 0 0.5rem 0;
+}
+
+.tutor-comment p:last-child {
+    margin: 0;
+}
+
+.tutor-comment ul,
+.tutor-comment ol {
+    margin-left: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.tutor-comment li {
+    margin-bottom: 0.25rem;
+}
+
+.tutor-comment strong {
+    font-weight: 700;
+    color: #fff176;
+    /* Brighter yellow for emphasis */
+}
+
+.transcript-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    scroll-behavior: smooth;
+    /* Custom scrollbar for webkit */
+    -webkit-overflow-scrolling: touch;
+}
+
+.transcript-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding-bottom: 1rem;
+}
+
+/* Message Styles */
+#transcript p {
+    max-width: 85%;
+    padding: 0.75rem 1rem;
+    border-radius: 1.25rem;
+    font-size: 2rem;
+    /* 2x larger */
+    line-height: 1.3;
+    word-wrap: break-word;
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* User Message */
+.user-msg {
+    opacity: 0.6;
+    align-self: flex-end;
+    background-color: var(--user-bubble-bg);
+    color: var(--text-primary);
+    border-bottom-right-radius: 0.25rem;
+}
+
+/* Model Message */
+.model-msg {
+    align-self: flex-start;
+    background-color: var(--model-bubble-bg);
+    color: var(--text-primary);
+    border-bottom-left-radius: 0.25rem;
+}
+
+/* System/Setup Message */
+.system-msg {
+    align-self: center;
+    background-color: transparent !important;
+    color: var(--text-secondary) !important;
+    box-shadow: none;
+    text-align: center;
+    font-size: 1rem !important;
+    /* Keep system msg small */
+    padding: 0.5rem;
+}
+
+.controls-container {
+    padding: 1rem;
+    /* More padding for safety */
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+    background-color: var(--surface-color);
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    gap: 1rem;
+    z-index: 10;
+}
+
+.control-btn {
+    flex: 1;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    font-size: 1rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.control-btn:active {
+    transform: scale(0.98);
+}
+
+.control-btn.start {
+    background-color: var(--primary-color);
+    color: #202124;
+    /* Dark text on light blue */
+}
+
+.control-btn.start:disabled {
+    background-color: #3c4043;
+    color: #9aa0a6;
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.control-btn.stop {
+    background-color: var(--surface-color);
+    color: var(--danger-color);
+    border: 1px solid rgba(229, 115, 115, 0.2);
+}
+
+.control-btn.stop:disabled {
+    color: var(--text-secondary);
+    border-color: transparent;
+    background-color: #303134;
+    cursor: not-allowed;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes listen-pulse {
+    0% {
+        background-color: var(--surface-color);
+        /* Dark Gray */
+        opacity: 1;
+    }
+
+    50% {
+        background-color: #5c2b2b;
+        /* Dark Red to match dark theme */
+        opacity: 1;
+    }
+
+    100% {
+        background-color: var(--surface-color);
+        opacity: 1;
+    }
+}
+
+.listen-active {
+    animation: listen-pulse 1.5s ease-in-out infinite;
+}
+
+.listen-active h1 {
+    color: #ff8a80;
+    /* Light Red Text */
+}
+
+@keyframes loading-pulse {
+    0% {
+        opacity: 0.6;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0.6;
+    }
+}
+
+.tutor-loading {
+    animation: loading-pulse 1.5s ease-in-out infinite;
+    font-style: italic;
+    color: var(--text-secondary);
+}
+
+/* Settings Button */
+.settings-btn {
+    position: absolute;
+    right: 1rem;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.5rem;
+    transition: all 0.2s;
+}
+
+.settings-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+}
+
+.settings-btn:active {
+    transform: scale(0.95);
+}
+
+.settings-btn.needs-attention {
+    color: #ffd54f;
+    animation: attention-pulse 2s ease-in-out infinite;
+}
+
+@keyframes attention-pulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.6;
+        transform: scale(1.1);
+    }
+}
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+    animation: fadeIn 0.2s ease-out;
+}
+
+.modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background-color: var(--surface-color);
+    border-radius: 1rem;
+    width: 90%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.modal-header h2 {
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.close-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 2rem;
+    cursor: pointer;
+    padding: 0;
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.5rem;
+    transition: all 0.2s;
+    line-height: 1;
+}
+
+.close-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.settings-section {
+    margin-bottom: 1.5rem;
+}
+
+.settings-section:last-child {
+    margin-bottom: 0;
+}
+
+.settings-section h3 {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.settings-description {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+    line-height: 1.5;
+}
+
+.settings-description a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.settings-description a:hover {
+    text-decoration: underline;
+}
+
+.api-key-display {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.api-key-display input {
+    flex: 1;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    font-family: monospace;
+}
+
+.api-key-display input::placeholder {
+    color: var(--text-secondary);
+}
+
+.api-key-display input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.toggle-btn {
+    background-color: var(--bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.toggle-btn:hover {
+    background-color: var(--surface-color);
+    color: var(--text-primary);
+}
+
+.voice-select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.voice-select:hover {
+    border-color: var(--primary-color);
+}
+
+.voice-select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    background-color: var(--surface-color);
+}
+
+.voice-select option {
+    background-color: var(--surface-color);
+    color: var(--text-primary);
+    padding: 0.5rem;
+}
+
+.speed-control {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.speed-control input[type="range"] {
+    flex: 1;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--border-color);
+    outline: none;
+    -webkit-appearance: none;
+}
+
+.speed-control input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.speed-control input[type="range"]::-webkit-slider-thumb:hover {
+    background: #a8c7fa;
+    transform: scale(1.1);
+}
+
+.speed-control input[type="range"]::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+}
+
+.speed-control input[type="range"]::-moz-range-thumb:hover {
+    background: #a8c7fa;
+    transform: scale(1.1);
+}
+
+.speed-display {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    min-width: 50px;
+    text-align: center;
+}
+
+.speed-presets {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.preset-btn {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.preset-btn:hover {
+    background-color: var(--surface-color);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.preset-btn:active {
+    transform: scale(0.95);
+}
+
+.role-textarea {
+    width: 100%;
+    min-height: 100px;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    font-family: inherit;
+    resize: vertical;
+    line-height: 1.5;
+}
+
+.role-textarea::placeholder {
+    color: var(--text-secondary);
+}
+
+.role-textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.role-examples {
+    margin-top: 0.75rem;
+    max-height: 300px;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+}
+
+.role-examples::-webkit-scrollbar {
+    width: 6px;
+}
+
+.role-examples::-webkit-scrollbar-track {
+    background: var(--bg-color);
+    border-radius: 3px;
+}
+
+.role-examples::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 3px;
+}
+
+.role-examples::-webkit-scrollbar-thumb:hover {
+    background: var(--text-secondary);
+}
+
+.examples-title {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.75rem;
+    font-weight: 500;
+}
+
+.example-category {
+    margin-bottom: 1rem;
+}
+
+.example-category:last-child {
+    margin-bottom: 0;
+}
+
+.category-label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--primary-color);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    padding-left: 0.25rem;
+}
+
+.example-btn {
+    display: inline-block;
+    padding: 0.5rem 0.75rem;
+    margin: 0.25rem 0.25rem 0.25rem 0;
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+}
+
+.example-btn:hover {
+    background-color: var(--surface-color);
+    border-color: var(--primary-color);
+    transform: translateY(-1px);
+}
+
+.example-btn:active {
+    transform: scale(0.98);
+}
+
+.status-message {
+    font-size: 0.85rem;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    display: none;
+}
+
+.status-message.success {
+    display: block;
+    background-color: rgba(76, 175, 80, 0.1);
+    color: #81c784;
+    border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.status-message.error {
+    display: block;
+    background-color: rgba(229, 115, 115, 0.1);
+    color: var(--danger-color);
+    border: 1px solid rgba(229, 115, 115, 0.3);
+}
+
+.status-message.warning {
+    display: block;
+    background-color: rgba(255, 193, 7, 0.1);
+    color: #ffd54f;
+    border: 1px solid rgba(255, 193, 7, 0.3);
+}
+
+.modal-footer {
+    padding: 1.5rem;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+}
+
+.primary-btn,
+.secondary-btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+}
+
+.primary-btn {
+    background-color: var(--primary-color);
+    color: #202124;
+}
+
+.primary-btn:hover {
+    background-color: #a8c7fa;
+}
+
+.primary-btn:active {
+    transform: scale(0.98);
+}
+
+.secondary-btn {
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.secondary-btn:hover {
+    background-color: var(--surface-color);
+}
+
+.secondary-btn:active {
+    transform: scale(0.98);
+}
+
+/* Mobile Polish */
+@media (max-width: 480px) {
+    .app-header h1 {
+        font-size: 1.1rem;
+    }
+
+    #transcript p {
+        /* font-size: 1.5rem;  Maybe scale down slightly on mobile if 2rem is too big? User said "2x", assuming from base 1rem */
+        font-size: 2rem;
+    }
+
+    /* Ensure system message stays small on mobile */
+    .system-msg {
+        font-size: 0.9rem !important;
+    }
+
+    .modal-content {
+        width: 95%;
+        margin: 1rem;
+    }
+
+    .modal-footer {
+        flex-direction: column-reverse;
+    }
+
+    .primary-btn,
+    .secondary-btn {
+        width: 100%;
+    }
+}
