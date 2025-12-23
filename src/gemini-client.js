@@ -79,6 +79,16 @@ Your goal is to provide meaningful companionship and make the user feel heard an
                         voice_config: { prebuilt_voice_config: { voice_name: this.voiceName } }
                     }
                 },
+                // VAD 설정 - 긴 문장 지원
+                realtimeInputConfig: {
+                    automaticActivityDetection: {
+                        disabled: false,           // 자동 VAD 활성화
+                        endOfSpeechSensitivity: "END_SENSITIVITY_LOW",      // 낮은 감도 (긴 문장 지원)
+                        startOfSpeechSensitivity: "START_SENSITIVITY_LOW",  // 낮은 감도
+                        silenceDurationMs: 2000,   // 2초 침묵 후 턴 종료
+                        prefixPaddingMs: 100       // 음성 시작 전 100ms 버퍼
+                    }
+                },
                 inputAudioTranscription: {},
                 outputAudioTranscription: {}
             }
